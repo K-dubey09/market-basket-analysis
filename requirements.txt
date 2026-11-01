@@ -1,0 +1,11 @@
+streamlit>=1.30
+flask>=3.0
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+seaborn>=0.12
+plotly>=5.18
+mlxtend>=0.23
+networkx>=3.0
+Pillow>=10.0
+openpyxl>=3.1        # XLSX support for the dashboard's Upload feature

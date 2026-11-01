@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Generated artifacts — results/charts/ and results/rules/ ARE committed so
+# the Streamlit dashboard works on Streamlit Community Cloud (which only runs
+# `pip install -r requirements.txt`, not the pipeline). If you regenerate
+# them locally with `python -m scripts.run_pipeline`, git diff will show
+# any real changes. Only the screenshots directory stays ignored.
+results/screenshots/
+
+# User-uploaded datasets are runtime state, not source — never commit them.
+data/dataset_uploaded.csv
+
+# Keep the cleaned + raw datasets OUT of git but they ship in the ZIP for
+# convenience; uncomment to exclude:
+# data/dataset.csv
+# data/dataset_cleaned.csv
+
+# OS junk
+.DS_Store
+Thumbs.db

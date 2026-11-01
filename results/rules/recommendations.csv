@@ -1,0 +1,23 @@
+seed_product,recommended,confidence,lift
+ValueMart Lettuce,ValueMart Tomatoes,0.34,11.41
+ValueMart Canned Tomatoes,ValueMart Onions,0.233,14.11
+ValueMart Canned Tomatoes,OrganicGarden Onions,0.256,13.58
+ValueMart Canned Tomatoes,ValueMart Garlic,0.256,11.64
+OrganicGarden Garlic,OrganicGarden Onions,0.2,10.62
+OrganicGarden Garlic,ValueMart Canned Tomatoes,0.325,9.63
+OrganicGarden Garlic,ValueMart Olive Oil,0.225,7.54
+ValueMart Tomatoes,DailyFarm Cheddar Cheese,0.211,12.77
+ValueMart Tomatoes,ValueMart Lettuce,0.421,11.41
+ValueMart Tomatoes,OrganicGarden Lettuce,0.237,10.78
+ValueMart Olive Oil,OrganicGarden Garlic,0.237,7.54
+BrewMaster Coffee Beans,FreshCo Donut,0.222,11.8
+PureLife Sugar,SweetTooth Cookies,0.222,8.09
+PureLife Sugar,DailyFarm Whole Milk,0.222,7.86
+DailyFarm Whole Milk,PureLife Flour,0.25,10.98
+DailyFarm Whole Milk,PureLife Sugar,0.222,7.86
+BrewMaster Cola,SweetTooth Potato Chips,0.2,13.41
+BrewMaster Cola,SweetTooth Tortilla Chips,0.257,11.7
+ValueMart Cola,SweetTooth Potato Chips,0.2,13.41
+ValueMart Cola,FreshCo Potato Chips,0.2,12.74
+ValueMart Cola,SweetTooth Tortilla Chips,0.229,10.4
+SweetTooth Cookies,PureLife Sugar,0.229,8.09
