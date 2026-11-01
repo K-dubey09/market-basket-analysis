@@ -22,10 +22,12 @@ def run_apriori(transaction_matrix: pd.DataFrame,
     """Return frequent itemsets + association rules sorted by lift.
 
     Parameters mirror the mlxtend API; defaults come from ``config`` so the
-    app and the batch pipeline stay in sync.
+    app and the batch pipeline stay in sync. The matrix is cast to bool
+    because mlxtend warns (and will eventually error) on non-bool frames.
     """
+    tm = transaction_matrix.astype(bool)
     frequent = apriori(
-        transaction_matrix,
+        tm,
         min_support=min_support,
         use_colnames=True,
         max_len=max_len,
@@ -50,7 +52,7 @@ def frequent_itemsets_apriori(transaction_matrix: pd.DataFrame,
                              max_len: int = config.MAX_ITEMSET_LEN) -> pd.DataFrame:
     """Frequent itemsets only (no rules) — used by the EDA 'top combos' chart."""
     freq = apriori(
-        transaction_matrix, min_support=min_support, use_colnames=True, max_len=max_len
+        transaction_matrix.astype(bool), min_support=min_support, use_colnames=True, max_len=max_len
     )
     freq = freq[freq["itemsets"].apply(len) >= 2].copy()
     freq["items"] = freq["itemsets"].apply(lambda s: " + ".join(sorted(s)))

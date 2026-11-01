@@ -1,22 +1,21 @@
-"""Streamlit app — Market Basket Analysis dashboard.
+"""Streamlit app — Market Basket Analysis dashboard (reactive edition).
 
 Run with:  streamlit run app/dashboard.py
 
-The dashboard has six pages, all driven by the same cached data + cached
-rules so navigation is instant:
+Six pages, all driven from one cached dataset + one cached rule set. Every
+widget that changes the analysis (mining parameters in the sidebar, the top-N
+slider on the Rules page, the chart-mode toggle on EDA, the seed product on the
+Recommender, a fresh upload) re-runs the affected computation and re-renders
+the charts live — nothing here is a static pre-rendered image except the rule
+network fallback. Charts are Plotly, rendered with ``width="stretch"``
+so they re-flow to the window width (mobile-friendly and truly responsive).
 
   0. Upload Data   — bring your own XLSX/CSV; replace or append to the dataset
-  1. Overview      — KPIs, dataset health, anomaly banner
-  2. EDA           — frequency, revenue, category, basket-size, time charts
-  3. Association Rules — Apriori vs FP-Growth tables, scatter, network
-  4. Recommender   — pick a product, get cross-sell suggestions
+  1. Overview      — KPIs + live category mix + live top-N products
+  2. EDA           — eight interactive charts, all reactive to a top-N slider
+  3. Association Rules — top-N bar, support-vs-confidence bubble, interactive network
+  4. Recommender   — pick a product, live cross-sell bar + table
   5. Data Quality  — anomaly drill-down + cleaned-data preview
-
-The Upload page lets you load a custom basket dataset (.xlsx or .csv) and
-either *replace* the bundled dataset or *append* to it. The merged frame is
-persisted to ``data/dataset_uploaded.csv`` so it survives a Streamlit
-restart, and every downstream page (rules, charts, recommender) re-runs on
-the active dataset immediately.
 """
 from __future__ import annotations
 
@@ -24,6 +23,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 # Ensure the project root (parent of app/) is importable when run via
@@ -37,7 +37,9 @@ from src.data_loader import (
     load_dataset, split_anomalies, add_basket_features, build_transaction_matrix,
     quality_report,
 )
-from src import apriori_miner, fpgrowth_miner, recommender, eda, visualizer
+from src import apriori_miner, fpgrowth_miner, recommender, eda
+from src import interactive as iv
+
 
 # Path used to persist user-uploaded / merged data so it survives restarts.
 # The active dataset is this file if it exists, otherwise the bundled CSV.
@@ -143,16 +145,12 @@ def _read_upload(uploaded_file) -> tuple[pd.DataFrame, list[str]]:
 
 
 # --------------------------------------------------------------------------- caching
+# A single int "data version" sentinel busts the cache whenever the active
+# dataset changes (upload/append/replace/reset). All five mining parameters
+# are passed as args to get_rules, so changing any of them re-runs mining —
+# that is what makes the dashboard reactive to the sidebar sliders.
 @st.cache_data(show_spinner="Loading dataset...")
 def get_data(_version: int):
-    """Load the active dataset (bundled or user-uploaded).
-
-    ``_version`` is an int that we bump whenever the user uploads or merges;
-    changing it invalidates the cache so the rest of the app re-runs on the
-    new data immediately. The leading underscore keeps Streamlit from trying
-    to hash the integer (it is fine to hash, but the underscore signals
-    intent that this is a cache-busting sentinel, not a data input).
-    """
     raw = load_dataset(_active_dataset_path())
     clean, anomalies = split_anomalies(raw)
     clean = add_basket_features(clean)
@@ -169,48 +167,13 @@ def get_rules(_version: int, min_support, min_confidence, min_lift, max_len, alg
     else:
         rules = fpgrowth_miner.run_fpgrowth(matrix, min_support, min_confidence, min_lift, max_len)
         itemsets = fpgrowth_miner.frequent_itemsets_fpgrowth(matrix, min_support, max_len)
-    return rules, itemsets, matrix
+    return rules, itemsets
 
 
-def _render_charts_for_active_data():
-    """Re-render the 8 EDA PNGs in results/charts/ for the active dataset.
-
-    Called once per data version (guarded by session state) so an uploaded
-    or merged dataset gets fresh charts without re-rendering on every rerun.
-    Reuses the tested chart functions in src.visualizer rather than
-    duplicating their plot code here.
-    """
-    _, clean, anomalies = get_data(st.session_state.data_version)
-    try:
-        visualizer.chart_top_products(clean, 10)
-        visualizer.chart_top_revenue(clean, 10)
-        visualizer.chart_category_distribution(clean)
-        visualizer.chart_basket_size(clean)
-        visualizer.chart_daily_transactions(clean)
-        visualizer.chart_hourly_pattern(clean)
-        visualizer.chart_category_heatmap(clean)
-        # anomaly_breakdown needs rows flagged is_anomaly == 1; if the
-        # uploaded data has none, this still renders an empty axes safely.
-        visualizer.chart_anomaly_breakdown(anomalies if not anomalies.empty else clean)
-    except Exception as exc:  # noqa: BLE001 — never let a chart error kill the app
-        st.warning(f"Could not render some EDA charts for the uploaded data: {exc}")
-
-
-# --------------------------------------------------------------------------- session state for cache busting
-# Bump this whenever the active dataset changes so cached data/rules/charts
-# are re-computed for the new frame.
+# --------------------------------------------------------------------------- session state
 if "data_version" not in st.session_state:
     st.session_state.data_version = 0
 DATA_VERSION = st.session_state.data_version
-
-# Render charts for the active dataset once per data version. On the bundled
-# dataset the pre-rendered PNGs are already correct, so we skip re-rendering
-# and just read them. Must run AFTER data_version is initialised above.
-if (UPLOADED_PATH.exists()
-        and st.session_state.get("charts_rendered_for") != st.session_state.data_version):
-    _render_charts_for_active_data()
-    st.session_state.charts_rendered_for = st.session_state.data_version
-
 
 raw, clean_df, anomalies = get_data(DATA_VERSION)
 qr = quality_report(raw)
@@ -222,14 +185,16 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### Dataset snapshot")
     src = "uploaded" if UPLOADED_PATH.exists() else "bundled"
-    st.caption(f"Active dataset: **{src}** ({_active_dataset_path().name})")
-    st.metric("Transactions", f"{qr['transactions']:,}")
-    st.metric("Products", qr["products"])
-    st.metric("Customers", qr["customers"])
-    st.metric("Anomalies", f"{qr['anomalies']} ({100*qr['anomalies']/qr['total_rows']:.1f}%)")
+    st.caption(f"Active dataset: **{src}** (`{_active_dataset_path().name}`)")
+    s1, s2 = st.columns(2)
+    s1.metric("Transactions", f"{qr['transactions']:,}")
+    s2.metric("Products", qr["products"])
+    s1.metric("Customers", f"{qr['customers']:,}")
+    s2.metric("Anomalies", f"{qr['anomalies']} ({100*qr['anomalies']/qr['total_rows']:.1f}%)")
     st.caption(f"Date range: {qr['date_range'][0]} → {qr['date_range'][1]}")
     st.markdown("---")
     st.markdown("### Mining parameters")
+    st.caption("Changing any slider re-mines the rules and re-renders every rule chart.")
     algo = st.radio("Algorithm", ["Apriori", "FP-Growth"], horizontal=True)
     min_support = st.slider("Min support", 0.001, 0.05, float(config.MIN_SUPPORT), 0.001, format="%.3f")
     min_confidence = st.slider("Min confidence", 0.05, 1.0, float(config.MIN_CONFIDENCE), 0.05)
@@ -238,7 +203,7 @@ with st.sidebar:
     st.markdown("---")
     st.caption("Built with Streamlit · mlxtend · Plotly")
 
-rules, itemsets, matrix = get_rules(DATA_VERSION, min_support, min_confidence, min_lift, max_len, algo)
+rules, itemsets = get_rules(DATA_VERSION, min_support, min_confidence, min_lift, max_len, algo)
 
 # --------------------------------------------------------------------------- pages
 PAGES = ["📤 Upload Data", "📊 Overview", "🔍 EDA", "🔗 Association Rules",
@@ -271,7 +236,7 @@ if page.startswith("📤"):
         "Default if missing": ["—", "blank", "—", "Uncategorised", "1", "0.0",
                                 "now", "0"],
     })
-    st.dataframe(schema_df, use_container_width=True, hide_index=True)
+    st.dataframe(schema_df, width="stretch", hide_index=True)
 
     st.markdown("### Upload file")
     mode = st.radio(
@@ -300,9 +265,8 @@ if page.startswith("📤"):
                 for e in errors:
                     st.markdown(f"- {e}")
             st.markdown("#### Preview of the uploaded rows")
-            st.dataframe(new_df.head(10), use_container_width=True, hide_index=True)
+            st.dataframe(new_df.head(10), width="stretch", hide_index=True)
 
-            # Build the merged frame according to the chosen mode
             if mode.startswith("Append"):
                 base = load_dataset(_active_dataset_path())
                 merged = pd.concat([base[EXPECTED_COLS], new_df], ignore_index=True)
@@ -342,73 +306,107 @@ elif page.startswith("📊"):
         "actionable cross-sell recommendations, mined with Apriori and "
         "FP-Growth and served through this interactive dashboard."
     )
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Total rows", f"{qr['total_rows']:,}")
-    c2.metric("Transactions", f"{qr['transactions']:,}")
-    c3.metric("Unique products", qr["products"])
-    c4.metric("Unique customers", qr["customers"])
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Avg basket size", f"{clean_df.groupby(config.ID_COL)[config.PRODUCT_COL].nunique().mean():.2f}")
-    c2.metric("Total revenue", f"${(clean_df[config.QTY_COL]*clean_df[config.PRICE_COL]).sum():,.0f}")
-    c3.metric("Anomalies flagged", f"{qr['anomalies']}")
-    c4.metric("Rules mined", f"{len(rules):,}")
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Total rows", f"{qr['total_rows']:,}")
+    k2.metric("Transactions", f"{qr['transactions']:,}")
+    k3.metric("Unique products", qr["products"])
+    k4.metric("Unique customers", f"{qr['customers']:,}")
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Avg basket size", f"{clean_df.groupby(config.ID_COL)[config.PRODUCT_COL].nunique().mean():.2f}")
+    k2.metric("Total revenue", f"${(clean_df[config.QTY_COL]*clean_df[config.PRICE_COL]).sum():,.0f}")
+    k3.metric("Anomalies flagged", f"{qr['anomalies']}")
+    k4.metric("Rules mined", f"{len(rules):,}")
 
+    st.markdown("---")
     st.markdown("### Category mix")
-    cat = eda.category_distribution(clean_df)
-    st.dataframe(cat.style.background_gradient(cmap="viridis", subset=["count"]), use_container_width=True)
+    cat_mode = st.radio("Chart style", ["Bar", "Pie"], horizontal=True, key="overview_cat")
+    st.plotly_chart(iv.fig_category_distribution(clean_df, kind=cat_mode.lower()),
+                    width="stretch")
 
-    st.markdown("### Top 10 products by frequency")
-    st.dataframe(eda.top_products(clean_df, 10).style.background_gradient(cmap="viridis", subset=["count"]),
-                 use_container_width=True, hide_index=True)
+    st.markdown("### Top products")
+    topn_overview = st.slider("Top N", 5, 30, 10, 5, key="overview_topn")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.plotly_chart(iv.fig_top_products(clean_df, topn_overview),
+                        width="stretch")
+    with c2:
+        st.plotly_chart(iv.fig_top_revenue(clean_df, topn_overview),
+                        width="stretch")
 
 
 # ----------------------------------------------------------------- EDA
 elif page.startswith("🔍"):
     st.title("🔍 Exploratory Data Analysis")
     if UPLOADED_PATH.exists():
-        st.caption("Charts below were re-rendered from your uploaded data.")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.image(str(config.CHARTS_DIR / "01_top_products.png"))
-        st.image(str(config.CHARTS_DIR / "04_basket_size.png"))
-        st.image(str(config.CHARTS_DIR / "06_hourly_pattern.png"))
-        st.image(str(config.CHARTS_DIR / "08_anomaly_breakdown.png"))
-    with col2:
-        st.image(str(config.CHARTS_DIR / "02_top_revenue.png"))
-        st.image(str(config.CHARTS_DIR / "03_category_distribution.png"))
-        st.image(str(config.CHARTS_DIR / "05_daily_transactions.png"))
-        st.image(str(config.CHARTS_DIR / "07_category_heatmap.png"))
+        st.caption("Charts below render live from your uploaded data.")
+    else:
+        st.caption("Charts render live from the active dataset — drag any slider to update.")
+    topn_eda = st.slider("Top N (products & revenue charts)", 5, 30, 10, 5, key="eda_topn")
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.plotly_chart(iv.fig_top_products(clean_df, topn_eda), width="stretch")
+    with c2:
+        st.plotly_chart(iv.fig_top_revenue(clean_df, topn_eda), width="stretch")
+
+    c1, c2 = st.columns([2, 1])
+    with c1:
+        st.plotly_chart(iv.fig_category_distribution(clean_df, kind="bar"), width="stretch")
+    with c2:
+        st.plotly_chart(iv.fig_basket_size(clean_df), width="stretch")
+
+    st.plotly_chart(iv.fig_daily_transactions(clean_df), width="stretch")
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.plotly_chart(iv.fig_hourly_pattern(clean_df), width="stretch")
+    with c2:
+        st.plotly_chart(iv.fig_anomaly_breakdown(raw), width="stretch")
+
+    st.plotly_chart(iv.fig_category_heatmap(clean_df), width="stretch")
 
 
 # ----------------------------------------------------------------- Rules
 elif page.startswith("🔗"):
     st.title("🔗 Association Rules")
-    st.caption(f"Algorithm: **{algo}** · {len(rules):,} rules · {len(itemsets):,} frequent itemsets (≥2 items)")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Avg lift", f"{rules['lift'].mean():.2f}" if not rules.empty else "—")
-    col2.metric("Max lift", f"{rules['lift'].max():.2f}" if not rules.empty else "—")
-    col3.metric("Avg confidence", f"{rules['confidence'].mean():.2f}" if not rules.empty else "—")
+    st.caption(f"Algorithm: **{algo}** · {len(rules):,} rules · "
+               f"{len(itemsets):,} frequent itemsets (≥2 items)")
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Avg lift", f"{rules['lift'].mean():.2f}" if not rules.empty else "—")
+    m2.metric("Max lift", f"{rules['lift'].max():.2f}" if not rules.empty else "—")
+    m3.metric("Avg confidence", f"{rules['confidence'].mean():.2f}" if not rules.empty else "—")
 
-    st.markdown("### Top rules by lift")
-    top = rules.head(config.TOP_N_RULES)
-    st.dataframe(
-        top[["antecedents", "consequents", "support", "confidence", "lift"]]
-        .style.background_gradient(cmap="viridis", subset=["lift", "confidence"]),
-        use_container_width=True, hide_index=True,
-    )
+    # Reactive controls: changing top_n re-renders the bar, scatter and
+    # network live from the current `rules` DataFrame (which itself is
+    # reactive to the sidebar mining parameters).
+    ctrl1, ctrl2 = st.columns([1, 1])
+    with ctrl1:
+        top_n = st.slider("Top N rules to visualise", 5, 100, int(config.TOP_N_RULES), 5,
+                          help="Re-renders the bar, scatter and network charts live.")
+    with ctrl2:
+        sort_by = st.selectbox("Sort rules by", ["lift", "confidence", "support"], key="rules_sort")
 
-    st.markdown("### Support vs Confidence (colour = lift)")
-    st.dataframe(pd.DataFrame({
-        "support": rules["support"], "confidence": rules["confidence"], "lift": rules["lift"]
-    }).describe().round(4), use_container_width=True)
-
-    st.markdown("### Rule network (top 25)")
-    if Path(config.CHARTS_DIR / "12_rules_network.png").exists() and not UPLOADED_PATH.exists():
-        st.image(str(config.CHARTS_DIR / "12_rules_network.png"))
+    if rules.empty:
+        st.warning("No rules at the current thresholds — lower min-support / "
+                   "min-confidence / min-lift in the sidebar.")
     else:
-        st.info("The rule-network chart is regenerated by the batch pipeline "
-                "(`python -m scripts.run_pipeline`). For an uploaded dataset, "
-                "run the pipeline from a terminal to refresh it.")
+        rules_sorted = rules.sort_values(sort_by, ascending=False).reset_index(drop=True)
+        st.markdown(f"### Top rules by {sort_by}")
+        st.dataframe(
+            rules_sorted.head(top_n)[["antecedents", "consequents", "support",
+                                      "confidence", "lift"]]
+            .style.background_gradient(cmap="viridis", subset=["lift", "confidence"]),
+            width="stretch", hide_index=True,
+        )
+
+        st.markdown("### Top rules by lift (bar)")
+        st.plotly_chart(iv.fig_top_rules_bar(rules, top_n), width="stretch")
+
+        st.markdown("### Support vs Confidence (size & colour = lift)")
+        st.plotly_chart(iv.fig_rules_scatter(rules, top_n), width="stretch")
+
+        st.markdown("### Rule network (top N)")
+        st.plotly_chart(iv.fig_rules_network(rules, top_n), width="stretch")
 
     st.markdown("### Download rules")
     csv = rules.to_csv(index=False).encode()
@@ -420,30 +418,41 @@ elif page.startswith("🎯"):
     st.title("🎯 Cross-Sell Recommender")
     st.markdown("Pick a product in the basket — see what customers commonly add next, ranked by lift.")
     products = sorted(clean_df[config.PRODUCT_COL].unique())
-    selected = st.selectbox("Seed product", products, index=0)
+    seed_default = 0
+    selected = st.selectbox("Seed product", products, index=seed_default)
     basket = st.multiselect("Also in basket (optional)", products)
+    rec_n = st.slider("Recommendations", 1, 20, int(config.RECOMMEND_TOP_N), key="rec_n")
     query = set([selected] + basket)
-    recs = recommender.recommend(rules, query, top_n=config.RECOMMEND_TOP_N)
+    recs = recommender.recommend(rules, query, top_n=rec_n)
+
     if recs.empty:
         st.warning("No rules match this combination at the current thresholds. "
-                   "Try lowering min-support / min-confidence in the sidebar.")
+                   "Try lowering min-support / min-confidence in the sidebar, "
+                   "or pick a different seed product.")
     else:
         st.markdown(f"#### Top {len(recs)} recommendations for **{selected}**")
+        st.plotly_chart(iv.fig_recommendations_bar(recs), width="stretch")
         st.dataframe(
             recs.style.background_gradient(cmap="viridis", subset=["lift", "confidence"]),
-            use_container_width=True, hide_index=True,
+            width="stretch", hide_index=True,
         )
-        st.markdown("**Reading the table** — *confidence* is the probability a customer who bought the seed product also bought the recommendation; *lift* compares that to the recommendation's overall popularity (lift > 1 means a genuine positive association).")
+        st.markdown(
+            "**Reading the table** — *confidence* is the probability a customer "
+            "who bought the seed product also bought the recommendation; *lift* "
+            "compares that to the recommendation's overall popularity "
+            "(lift > 1 means a genuine positive association)."
+        )
 
 
 # ----------------------------------------------------------------- Data Quality
 elif page.startswith("🧹"):
     st.title("🧹 Data Quality")
     st.markdown(f"**{len(anomalies)}** rows were flagged and excluded from mining "
-                f"({100*len(anomalies)/len(raw):.2f}% of the raw file).")
+                f"({100*len(anomalies)/max(len(raw),1):.2f}% of the raw file).")
     st.markdown("### Anomaly breakdown by fault type")
-    st.dataframe(eda.anomaly_breakdown(raw), use_container_width=True, hide_index=True)
+    st.plotly_chart(iv.fig_anomaly_breakdown(raw), width="stretch")
+    st.dataframe(eda.anomaly_breakdown(raw), width="stretch", hide_index=True)
     st.markdown("### Anomalous rows (sample)")
-    st.dataframe(anomalies.head(20), use_container_width=True, hide_index=True)
+    st.dataframe(anomalies.head(20), width="stretch", hide_index=True)
     st.markdown("### Cleaned data preview")
-    st.dataframe(clean_df.head(20), use_container_width=True, hide_index=True)
+    st.dataframe(clean_df.head(20), width="stretch", hide_index=True)

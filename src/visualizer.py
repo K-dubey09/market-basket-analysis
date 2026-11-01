@@ -73,7 +73,8 @@ def chart_category_distribution(df: pd.DataFrame) -> Path:
     from src.eda import category_distribution
     data = category_distribution(df)
     fig, ax = plt.subplots(figsize=(8, 5))
-    sns.barplot(data=data, y="category", x="count", ax=ax, palette="viridis")
+    sns.barplot(data=data, y="category", x="count", ax=ax,
+                hue="category", palette="viridis", legend=False)
     ax.set_title("Transactions by Category", fontsize=13, weight="bold")
     ax.set_xlabel("Line items")
     ax.set_ylabel("")
@@ -146,29 +147,48 @@ def chart_anomaly_breakdown(df: pd.DataFrame) -> Path:
 
 # --------------------------------------------------------------------------- rule charts
 def chart_top_rules(rules: pd.DataFrame, n: int = config.TOP_N_RULES) -> Path:
+    return _save(fig_top_rules(rules, n), "09_top_rules_lift.png")
+
+
+def fig_top_rules(rules: pd.DataFrame, n: int = config.TOP_N_RULES):
+    """Return a matplotlib Figure of the top-n rules by lift (no save)."""
     top = rules.head(n).copy()
     top["rule"] = top["antecedents"] + " → " + top["consequents"]
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(data=top, y="rule", x="lift", ax=ax, palette="magma")
+    if top.empty:
+        ax.text(0.5, 0.5, "No rules to display", ha="center", va="center")
+        ax.axis("off")
+        return fig
+    sns.barplot(data=top, y="rule", x="lift", ax=ax, hue="rule",
+                palette="magma", legend=False)
     ax.set_title(f"Top {n} Association Rules by Lift", fontsize=13, weight="bold")
     ax.set_xlabel("Lift")
     ax.set_ylabel("")
-    plt.tight_layout()
-    return _save(fig, "09_top_rules_lift.png")
+    fig.tight_layout()
+    return fig
 
 
 def chart_scatter_support_confidence(rules: pd.DataFrame) -> Path:
+    return _save(fig_scatter_support_confidence(rules), "10_scatter_support_confidence.png")
+
+
+def fig_scatter_support_confidence(rules: pd.DataFrame):
+    """Return a matplotlib Figure of support vs confidence (colour = lift)."""
     fig, ax = plt.subplots(figsize=(8, 5.5))
+    if rules.empty:
+        ax.text(0.5, 0.5, "No rules to display", ha="center", va="center")
+        ax.axis("off")
+        return fig
     sc = ax.scatter(
         rules["support"], rules["confidence"],
         c=rules["lift"], cmap="viridis", s=20, alpha=0.7, edgecolors="none"
     )
-    plt.colorbar(sc, label="Lift")
+    fig.colorbar(sc, ax=ax, label="Lift")
     ax.set_title("Support vs Confidence (colour = Lift)", fontsize=13, weight="bold")
     ax.set_xlabel("Support")
     ax.set_ylabel("Confidence")
-    plt.tight_layout()
-    return _save(fig, "10_scatter_support_confidence.png")
+    fig.tight_layout()
+    return fig
 
 
 def chart_top_itemsets(itemsets: pd.DataFrame, n: int = 15) -> Path:
@@ -183,13 +203,21 @@ def chart_top_itemsets(itemsets: pd.DataFrame, n: int = 15) -> Path:
 
 
 def chart_rules_network(rules: pd.DataFrame, n: int = 25) -> Path:
-    """Network diagram of the strongest rules (antecedent -> consequent)."""
+    return _save(fig_rules_network(rules, n), "12_rules_network.png")
+
+
+def fig_rules_network(rules: pd.DataFrame, n: int = 25):
+    """Return a matplotlib Figure of the rule network (no save).
+
+    Used by the Streamlit Rules page so the network re-renders live from the
+    current ``rules`` DataFrame whenever the mining parameters change.
+    """
     top = rules.head(n).copy()
+    fig, ax = plt.subplots(figsize=(11, 8))
     if top.empty:
-        fig, ax = plt.subplots(figsize=(8, 6))
         ax.text(0.5, 0.5, "No rules to display", ha="center", va="center")
         ax.axis("off")
-        return _save(fig, "12_rules_network.png")
+        return fig
     G = nx.DiGraph()
     for _, r in top.iterrows():
         ants = [a.strip() for a in r["antecedents"].split(",")]
@@ -197,10 +225,9 @@ def chart_rules_network(rules: pd.DataFrame, n: int = 25) -> Path:
         for a in ants:
             for c in cons:
                 G.add_edge(a, c, weight=r["lift"], confidence=r["confidence"])
-    fig, ax = plt.subplots(figsize=(11, 8))
     pos = nx.spring_layout(G, k=1.2, seed=42)
     degs = dict(G.degree())
-    sizes = [degs[n] * 350 + 200 for n in G.nodes]
+    sizes = [degs[node] * 350 + 200 for node in G.nodes]
     nx.draw_networkx_nodes(G, pos, ax=ax, node_size=sizes,
                            node_color="#440154", alpha=0.85)
     nx.draw_networkx_labels(G, pos, ax=ax, font_size=7, font_color="white")
@@ -210,5 +237,5 @@ def chart_rules_network(rules: pd.DataFrame, n: int = 25) -> Path:
                            arrows=True, arrowsize=12, alpha=0.6)
     ax.set_title(f"Association-Rule Network (top {n} rules)", fontsize=13, weight="bold")
     ax.axis("off")
-    plt.tight_layout()
-    return _save(fig, "12_rules_network.png")
+    fig.tight_layout()
+    return fig

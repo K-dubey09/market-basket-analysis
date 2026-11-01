@@ -18,8 +18,9 @@ def run_fpgrowth(transaction_matrix: pd.DataFrame,
                  min_confidence: float = config.MIN_CONFIDENCE,
                  min_lift: float = config.MIN_LIFT,
                  max_len: int = config.MAX_ITEMSET_LEN) -> pd.DataFrame:
+    tm = transaction_matrix.astype(bool)
     frequent = fpgrowth(
-        transaction_matrix,
+        tm,
         min_support=min_support,
         use_colnames=True,
         max_len=max_len,
@@ -42,7 +43,7 @@ def frequent_itemsets_fpgrowth(transaction_matrix: pd.DataFrame,
                               min_support: float = config.MIN_SUPPORT,
                               max_len: int = config.MAX_ITEMSET_LEN) -> pd.DataFrame:
     freq = fpgrowth(
-        transaction_matrix, min_support=min_support, use_colnames=True, max_len=max_len
+        transaction_matrix.astype(bool), min_support=min_support, use_colnames=True, max_len=max_len
     )
     freq = freq[freq["itemsets"].apply(len) >= 2].copy()
     freq["items"] = freq["itemsets"].apply(lambda s: " + ".join(sorted(s)))

@@ -6,39 +6,39 @@ support,itemsets,items
 0.008634222919937205,"frozenset({'PureLife Whole Milk', 'PureLife Butter'})",PureLife Butter + PureLife Whole Milk
 0.007849293563579277,"frozenset({'ValueMart Onions', 'ValueMart Canned Tomatoes'})",ValueMart Canned Tomatoes + ValueMart Onions
 0.007849293563579277,"frozenset({'OrganicGarden Carrots', 'ValueMart Canned Tomatoes'})",OrganicGarden Carrots + ValueMart Canned Tomatoes
-0.007849293563579277,"frozenset({'PureLife Flour', 'PureLife Butter'})",PureLife Butter + PureLife Flour
-0.00706436420722135,"frozenset({'ValueMart Tomatoes', 'OrganicGarden Lettuce'})",OrganicGarden Lettuce + ValueMart Tomatoes
-0.00706436420722135,"frozenset({'ValueMart Lemon', 'NatureBest Salsa'})",NatureBest Salsa + ValueMart Lemon
-0.00706436420722135,"frozenset({'ValueMart Strawberries', 'PureLife Whole Milk'})",PureLife Whole Milk + ValueMart Strawberries
+0.007849293563579277,"frozenset({'PureLife Butter', 'PureLife Flour'})",PureLife Butter + PureLife Flour
+0.00706436420722135,"frozenset({'OrganicGarden Lettuce', 'ValueMart Tomatoes'})",OrganicGarden Lettuce + ValueMart Tomatoes
+0.00706436420722135,"frozenset({'NatureBest Salsa', 'ValueMart Lemon'})",NatureBest Salsa + ValueMart Lemon
+0.00706436420722135,"frozenset({'PureLife Whole Milk', 'ValueMart Strawberries'})",PureLife Whole Milk + ValueMart Strawberries
 0.00706436420722135,"frozenset({'SweetTooth Tortilla Chips', 'BrewMaster Cola'})",BrewMaster Cola + SweetTooth Tortilla Chips
 0.00706436420722135,"frozenset({'PureLife Eggs', 'DailyFarm Sausage'})",DailyFarm Sausage + PureLife Eggs
-0.00706436420722135,"frozenset({'PureLife Flour', 'DailyFarm Whole Milk'})",DailyFarm Whole Milk + PureLife Flour
-0.00706436420722135,"frozenset({'ValueMart Olive Oil', 'OrganicGarden Garlic'})",OrganicGarden Garlic + ValueMart Olive Oil
-0.00706436420722135,"frozenset({'PureLife Flour', 'PureLife Whole Milk'})",PureLife Flour + PureLife Whole Milk
+0.00706436420722135,"frozenset({'DailyFarm Whole Milk', 'PureLife Flour'})",DailyFarm Whole Milk + PureLife Flour
+0.00706436420722135,"frozenset({'OrganicGarden Garlic', 'ValueMart Olive Oil'})",OrganicGarden Garlic + ValueMart Olive Oil
+0.00706436420722135,"frozenset({'PureLife Whole Milk', 'PureLife Flour'})",PureLife Flour + PureLife Whole Milk
 0.006279434850863423,"frozenset({'ValueMart Butter', 'ValueMart Eggs'})",ValueMart Butter + ValueMart Eggs
-0.006279434850863423,"frozenset({'FreshCo Donut', 'BrewMaster Coffee Beans'})",BrewMaster Coffee Beans + FreshCo Donut
+0.006279434850863423,"frozenset({'BrewMaster Coffee Beans', 'FreshCo Donut'})",BrewMaster Coffee Beans + FreshCo Donut
 0.006279434850863423,"frozenset({'OrganicGarden Strawberries', 'ValueMart Granola Bar'})",OrganicGarden Strawberries + ValueMart Granola Bar
-0.006279434850863423,"frozenset({'SweetTooth Cookies', 'PureLife Sugar'})",PureLife Sugar + SweetTooth Cookies
-0.006279434850863423,"frozenset({'ValueMart Sugar', 'PureLife Whole Milk'})",PureLife Whole Milk + ValueMart Sugar
+0.006279434850863423,"frozenset({'PureLife Sugar', 'SweetTooth Cookies'})",PureLife Sugar + SweetTooth Cookies
+0.006279434850863423,"frozenset({'PureLife Whole Milk', 'ValueMart Sugar'})",PureLife Whole Milk + ValueMart Sugar
 0.006279434850863423,"frozenset({'OrganicGarden Tomatoes', 'ValueMart Lettuce'})",OrganicGarden Tomatoes + ValueMart Lettuce
-0.006279434850863423,"frozenset({'ValueMart Garlic', 'NatureBest Olive Oil'})",NatureBest Olive Oil + ValueMart Garlic
-0.006279434850863423,"frozenset({'OrganicGarden Onions', 'OrganicGarden Garlic'})",OrganicGarden Garlic + OrganicGarden Onions
+0.006279434850863423,"frozenset({'NatureBest Olive Oil', 'ValueMart Garlic'})",NatureBest Olive Oil + ValueMart Garlic
+0.006279434850863423,"frozenset({'OrganicGarden Garlic', 'OrganicGarden Onions'})",OrganicGarden Garlic + OrganicGarden Onions
 0.006279434850863423,"frozenset({'OrganicGarden Tomatoes', 'OrganicGarden Lettuce'})",OrganicGarden Lettuce + OrganicGarden Tomatoes
 0.006279434850863423,"frozenset({'ValueMart Sponges', 'ValueMart Trash Bags'})",ValueMart Sponges + ValueMart Trash Bags
-0.006279434850863423,"frozenset({'ValueMart Cola', 'SweetTooth Tortilla Chips'})",SweetTooth Tortilla Chips + ValueMart Cola
+0.006279434850863423,"frozenset({'SweetTooth Tortilla Chips', 'ValueMart Cola'})",SweetTooth Tortilla Chips + ValueMart Cola
 0.006279434850863423,"frozenset({'PureLife Whole Milk', 'ValueMart Eggs'})",PureLife Whole Milk + ValueMart Eggs
 0.006279434850863423,"frozenset({'ValueMart Sponges', 'CleanCare Trash Bags'})",CleanCare Trash Bags + ValueMart Sponges
-0.006279434850863423,"frozenset({'OrganicGarden Lemon', 'NatureBest Salsa'})",NatureBest Salsa + OrganicGarden Lemon
-0.006279434850863423,"frozenset({'ValueMart Tomatoes', 'DailyFarm Cheddar Cheese'})",DailyFarm Cheddar Cheese + ValueMart Tomatoes
+0.006279434850863423,"frozenset({'NatureBest Salsa', 'OrganicGarden Lemon'})",NatureBest Salsa + OrganicGarden Lemon
+0.006279434850863423,"frozenset({'DailyFarm Cheddar Cheese', 'ValueMart Tomatoes'})",DailyFarm Cheddar Cheese + ValueMart Tomatoes
 0.006279434850863423,"frozenset({'DailyFarm Whole Milk', 'PureLife Sugar'})",DailyFarm Whole Milk + PureLife Sugar
 0.006279434850863423,"frozenset({'ValueMart Sponges', 'CleanCare Bleach'})",CleanCare Bleach + ValueMart Sponges
 0.006279434850863423,"frozenset({'ValueMart Blueberries', 'DailyFarm Greek Yogurt'})",DailyFarm Greek Yogurt + ValueMart Blueberries
 0.005494505494505495,"frozenset({'BrewMaster Coffee Beans', 'DailyFarm Sausage'})",BrewMaster Coffee Beans + DailyFarm Sausage
-0.005494505494505495,"frozenset({'BrewMaster Beer', 'ValueMart Tortilla Chips'})",BrewMaster Beer + ValueMart Tortilla Chips
-0.005494505494505495,"frozenset({'BrewMaster Beer', 'FreshCo Tortilla Chips'})",BrewMaster Beer + FreshCo Tortilla Chips
+0.005494505494505495,"frozenset({'ValueMart Tortilla Chips', 'BrewMaster Beer'})",BrewMaster Beer + ValueMart Tortilla Chips
+0.005494505494505495,"frozenset({'FreshCo Tortilla Chips', 'BrewMaster Beer'})",BrewMaster Beer + FreshCo Tortilla Chips
 0.005494505494505495,"frozenset({'PureLife Eggs', 'BrewMaster Coffee Beans'})",BrewMaster Coffee Beans + PureLife Eggs
-0.005494505494505495,"frozenset({'OrganicGarden Lemon', 'ValueMart Tortilla Chips'})",OrganicGarden Lemon + ValueMart Tortilla Chips
-0.005494505494505495,"frozenset({'ValueMart Cookies', 'OrganicGarden Lemon'})",OrganicGarden Lemon + ValueMart Cookies
+0.005494505494505495,"frozenset({'ValueMart Tortilla Chips', 'OrganicGarden Lemon'})",OrganicGarden Lemon + ValueMart Tortilla Chips
+0.005494505494505495,"frozenset({'OrganicGarden Lemon', 'ValueMart Cookies'})",OrganicGarden Lemon + ValueMart Cookies
 0.005494505494505495,"frozenset({'OrganicGarden Carrots', 'ValueMart Onions'})",OrganicGarden Carrots + ValueMart Onions
 0.005494505494505495,"frozenset({'OrganicGarden Avocados', 'ValueMart Tomatoes'})",OrganicGarden Avocados + ValueMart Tomatoes
 0.005494505494505495,"frozenset({'OrganicGarden Carrots', 'OrganicGarden Garlic'})",OrganicGarden Carrots + OrganicGarden Garlic
@@ -47,24 +47,24 @@ support,itemsets,items
 0.005494505494505495,"frozenset({'SweetTooth Tortilla Chips', 'NatureBest Salsa'})",NatureBest Salsa + SweetTooth Tortilla Chips
 0.005494505494505495,"frozenset({'OrganicGarden Avocados', 'OrganicGarden Lettuce'})",OrganicGarden Avocados + OrganicGarden Lettuce
 0.005494505494505495,"frozenset({'DailyFarm Whole Milk', 'FreshCo Donut'})",DailyFarm Whole Milk + FreshCo Donut
-0.005494505494505495,"frozenset({'BrewMaster Cola', 'SweetTooth Potato Chips'})",BrewMaster Cola + SweetTooth Potato Chips
-0.005494505494505495,"frozenset({'ValueMart Canned Tomatoes', 'NatureBest Broth'})",NatureBest Broth + ValueMart Canned Tomatoes
+0.005494505494505495,"frozenset({'SweetTooth Potato Chips', 'BrewMaster Cola'})",BrewMaster Cola + SweetTooth Potato Chips
+0.005494505494505495,"frozenset({'NatureBest Broth', 'ValueMart Canned Tomatoes'})",NatureBest Broth + ValueMart Canned Tomatoes
 0.005494505494505495,"frozenset({'FreshCo Potato Chips', 'ValueMart Cola'})",FreshCo Potato Chips + ValueMart Cola
-0.005494505494505495,"frozenset({'NatureBest Cat Food', 'PawPal Cat Treats'})",NatureBest Cat Food + PawPal Cat Treats
-0.005494505494505495,"frozenset({'ValueMart Strawberries', 'NatureBest Pancake Mix'})",NatureBest Pancake Mix + ValueMart Strawberries
+0.005494505494505495,"frozenset({'PawPal Cat Treats', 'NatureBest Cat Food'})",NatureBest Cat Food + PawPal Cat Treats
+0.005494505494505495,"frozenset({'NatureBest Pancake Mix', 'ValueMart Strawberries'})",NatureBest Pancake Mix + ValueMart Strawberries
 0.005494505494505495,"frozenset({'PureLife Vinegar', 'OrganicGarden Lettuce'})",OrganicGarden Lettuce + PureLife Vinegar
-0.005494505494505495,"frozenset({'PureLife Flour', 'PureLife Eggs'})",PureLife Eggs + PureLife Flour
-0.005494505494505495,"frozenset({'PureLife Flour', 'ValueMart Butter'})",PureLife Flour + ValueMart Butter
+0.005494505494505495,"frozenset({'PureLife Eggs', 'PureLife Flour'})",PureLife Eggs + PureLife Flour
+0.005494505494505495,"frozenset({'ValueMart Butter', 'PureLife Flour'})",PureLife Flour + ValueMart Butter
 0.005494505494505495,"frozenset({'ValueMart Blueberries', 'OrganicGarden Strawberries'})",OrganicGarden Strawberries + ValueMart Blueberries
-0.005494505494505495,"frozenset({'ValueMart Cucumber', 'OrganicGarden Lettuce'})",OrganicGarden Lettuce + ValueMart Cucumber
+0.005494505494505495,"frozenset({'OrganicGarden Lettuce', 'ValueMart Cucumber'})",OrganicGarden Lettuce + ValueMart Cucumber
 0.005494505494505495,"frozenset({'ValueMart Carrots', 'OrganicGarden Lettuce'})",OrganicGarden Lettuce + ValueMart Carrots
 0.005494505494505495,"frozenset({'ValueMart Avocados', 'OrganicGarden Lettuce'})",OrganicGarden Lettuce + ValueMart Avocados
 0.005494505494505495,"frozenset({'ValueMart Blueberries', 'SweetTooth Granola Bar'})",SweetTooth Granola Bar + ValueMart Blueberries
-0.005494505494505495,"frozenset({'ValueMart Sugar', 'ValueMart Butter'})",ValueMart Butter + ValueMart Sugar
-0.005494505494505495,"frozenset({'ValueMart Tomatoes', 'ValueMart Avocados'})",ValueMart Avocados + ValueMart Tomatoes
-0.005494505494505495,"frozenset({'ValueMart Cola', 'SweetTooth Potato Chips'})",SweetTooth Potato Chips + ValueMart Cola
+0.005494505494505495,"frozenset({'ValueMart Butter', 'ValueMart Sugar'})",ValueMart Butter + ValueMart Sugar
+0.005494505494505495,"frozenset({'ValueMart Avocados', 'ValueMart Tomatoes'})",ValueMart Avocados + ValueMart Tomatoes
+0.005494505494505495,"frozenset({'SweetTooth Potato Chips', 'ValueMart Cola'})",SweetTooth Potato Chips + ValueMart Cola
 0.005494505494505495,"frozenset({'SweetTooth Tortilla Chips', 'ValueMart Beer'})",SweetTooth Tortilla Chips + ValueMart Beer
-0.005494505494505495,"frozenset({'ValueMart Cola', 'ValueMart Tortilla Chips'})",ValueMart Cola + ValueMart Tortilla Chips
+0.005494505494505495,"frozenset({'ValueMart Tortilla Chips', 'ValueMart Cola'})",ValueMart Cola + ValueMart Tortilla Chips
 0.005494505494505495,"frozenset({'ValueMart Carrots', 'ValueMart Canned Tomatoes'})",ValueMart Canned Tomatoes + ValueMart Carrots
-0.005494505494505495,"frozenset({'ValueMart Olive Oil', 'ValueMart Lettuce'})",ValueMart Lettuce + ValueMart Olive Oil
-0.005494505494505495,"frozenset({'PureLife Flour', 'PureLife Whole Milk', 'PureLife Butter'})",PureLife Butter + PureLife Flour + PureLife Whole Milk
+0.005494505494505495,"frozenset({'ValueMart Lettuce', 'ValueMart Olive Oil'})",ValueMart Lettuce + ValueMart Olive Oil
+0.005494505494505495,"frozenset({'PureLife Whole Milk', 'PureLife Butter', 'PureLife Flour'})",PureLife Butter + PureLife Flour + PureLife Whole Milk

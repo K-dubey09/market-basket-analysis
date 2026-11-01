@@ -1,4 +1,4 @@
-streamlit>=1.30
+streamlit>=1.32        # width='stretch' for responsive charts/tables (1.66+ recommended)
 flask>=3.0
 pandas>=2.0
 numpy>=1.24
