@@ -1,4 +1,4 @@
-streamlit>=1.32        # width='stretch' for responsive charts/tables (1.66+ recommended)
+streamlit>=1.32       
 flask>=3.0
 pandas>=2.0
 numpy>=1.24
@@ -8,4 +8,4 @@ plotly>=5.18
 mlxtend>=0.23
 networkx>=3.0
 Pillow>=10.0
-openpyxl>=3.1        # XLSX support for the dashboard's Upload feature
+openpyxl>=3.1        
